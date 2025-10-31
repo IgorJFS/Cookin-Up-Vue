@@ -1,26 +1,27 @@
 <script lang="ts">
-import type ICategoria from '@/types/ICategoria';
-import { obterCategorias } from '@/http/index';
-import CardCategoria from './CardCategoria.vue';
+import type ICategoria from '@/types/ICategoria'
+import { obterCategorias } from '@/http/index'
+import CardCategoria from './CardCategoria.vue'
 
 export default {
   data() {
     return {
       categorias: [] as ICategoria[],
-    };
+    }
   },
   async created() {
     try {
-      this.categorias = await obterCategorias();
+      this.categorias = await obterCategorias()
     } catch (error) {
-      console.error('Erro ao obter categorias:', error);
-      throw error;
+      console.error('Erro ao obter categorias:', error)
+      throw error
     }
   },
   components: {
     CardCategoria,
   },
-};
+  emits: ['adicionar', 'remover'],
+}
 </script>
 
 <template>
@@ -33,11 +34,17 @@ export default {
 
     <ul class="categorias">
       <li v-for="categoria in categorias" :key="categoria.nome">
-        <CardCategoria :categoria="categoria" />
+        <CardCategoria
+          :categoria="categoria"
+          @adicionar="$emit('adicionar', $event)"
+          @remover="$emit('remover', $event)"
+        />
       </li>
     </ul>
 
-    <p class="paragrafo dica">*Atenção: consideramos que você tem em casa sal, pimenta e água.</p>
+    <p style="color: red" class="paragrafo dica">
+      *Atenção: consideramos que você tem em casa sal, pimenta e água.
+    </p>
   </section>
 </template>
 
