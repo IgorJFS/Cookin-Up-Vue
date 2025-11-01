@@ -1,30 +1,21 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from 'vue'
 import TagCard from './TagCard.vue'
+import { useIngredientes } from '@/composables/useIngredientes'
 
-export default {
-  components: {
-    TagCard,
-  },
-  props: {
-    ingrediente: { type: String, required: true },
-  },
-  data() {
-    return {
-      selecionado: false,
-    }
-  },
-  methods: {
-    aoClicar() {
-      this.selecionado = !this.selecionado
+const props = defineProps<{
+  ingrediente: string
+}>()
+const { adicionarIngrediente, removerIngrediente } = useIngredientes()
+const selecionado = ref(false)
+const aoClicar = () => {
+  selecionado.value = !selecionado.value
 
-      if (this.selecionado) {
-        this.$emit('adicionar', this.ingrediente)
-      } else {
-        this.$emit('remover', this.ingrediente)
-      }
-    },
-  },
-  emits: ['adicionar', 'remover'],
+  if (selecionado.value) {
+    adicionarIngrediente(props.ingrediente)
+  } else {
+    removerIngrediente(props.ingrediente)
+  }
 }
 </script>
 <template>

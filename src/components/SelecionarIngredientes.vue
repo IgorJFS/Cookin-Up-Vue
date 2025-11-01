@@ -1,27 +1,29 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, onMounted, inject } from 'vue'
 import type ICategoria from '@/types/ICategoria'
 import { obterCategorias } from '@/http/index'
 import CardCategoria from './CardCategoria.vue'
+import BotaoPrincipal from './BotaoPrincipal.vue'
 
-export default {
-  data() {
-    return {
-      categorias: [] as ICategoria[],
-    }
-  },
-  async created() {
-    try {
-      this.categorias = await obterCategorias()
-    } catch (error) {
-      console.error('Erro ao obter categorias:', error)
-      throw error
-    }
-  },
-  components: {
-    CardCategoria,
-  },
-  emits: ['adicionar', 'remover'],
+const categorias = ref<ICategoria[]>([])
+const navegarPara = inject('buscarReceitas') as Function
+
+defineOptions({
+  name: 'SelecionarIngredientes',
+})
+
+const buscarReceitas = () => {
+  navegarPara('mostrar')
 }
+
+onMounted(async () => {
+  try {
+    categorias.value = await obterCategorias()
+  } catch (error) {
+    console.error('Erro ao obter categorias:', error)
+    throw error
+  }
+})
 </script>
 
 <template>
@@ -34,17 +36,14 @@ export default {
 
     <ul class="categorias">
       <li v-for="categoria in categorias" :key="categoria.nome">
-        <CardCategoria
-          :categoria="categoria"
-          @adicionar="$emit('adicionar', $event)"
-          @remover="$emit('remover', $event)"
-        />
+        <CardCategoria :categoria="categoria" />
       </li>
     </ul>
 
     <p style="color: red" class="paragrafo dica">
       *Atenção: consideramos que você tem em casa sal, pimenta e água.
     </p>
+    <BotaoPrincipal texto="Buscar receitas!" @click="buscarReceitas" />
   </section>
 </template>
 

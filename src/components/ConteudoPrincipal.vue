@@ -1,32 +1,33 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, provide, type Ref } from 'vue'
 import SelecionarIngredientes from './SelecionarIngredientes.vue'
 import SuaLista from './SuaLista.vue'
+import { provideIngredientes } from '@/composables/useIngredientes'
+import MostrarReceitas from './MostrarReceitas.vue'
 
-export default {
-  name: 'ConteudoPrincipal',
-  data() {
-    return {
-      ingredients: [] as string[],
-    }
-  },
-  components: {
-    SelecionarIngredientes,
-    SuaLista,
-  },
-  methods: {
-    adicionarIngrediente(ingrediente: string) {
-      this.ingredients.push(ingrediente)
-    },
-    removerIngrediente(index: number) {
-      this.ingredients.splice(index, 1)
-    },
-  },
+type Pagina = 'selecionar' | 'mostrar'
+
+const conteudo: Ref<Pagina> = ref('selecionar')
+
+const buscarReceitas = (pagina: Pagina) => {
+  conteudo.value = pagina
 }
+
+provide('buscarReceitas', buscarReceitas)
+
+const { ingredients } = provideIngredientes()
 </script>
 <template>
   <main class="conteudo-principal">
     <SuaLista :ingredients="ingredients" />
-    <SelecionarIngredientes @adicionar="adicionarIngrediente" @remover="removerIngrediente" />
+    <KeepAlive include="SelecionarIngredientes">
+      <SelecionarIngredientes v-if="conteudo === 'selecionar'" />
+      <MostrarReceitas
+        v-else-if="conteudo === 'mostrar'"
+        @editar-receitas="buscarReceitas('selecionar')"
+        :ingredientes="ingredients"
+      />
+    </KeepAlive>
   </main>
 </template>
 
